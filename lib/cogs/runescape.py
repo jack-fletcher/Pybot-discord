@@ -360,7 +360,7 @@ class Runescape(Cog):
                     redirectedUrl = res.url
                     embed = Embed()
                     embed.title = f"{username}'s Adventurer Log"
-                    embed.url = URL
+                    embed.url = f'https://apps.runescape.com/runemetrics/app/overview/player/{user}'
                     embed.set_thumbnail(url=redirectedUrl)
                     embed.description = desc
                     embed.set_footer(text=str(date.today()))
