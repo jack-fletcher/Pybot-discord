@@ -1,0 +1,12 @@
+--CREATE TABLE IF NOT EXISTS UserGains (
+--    UserID integer PRIMARY KEY,
+--    Username text NOT NULL
+--);
+--
+--CREATE TABLE IF NOT EXISTS ClanURLS (
+--    DiscordID integer PRIMARY KEY,
+--    ChannelID integer NOT NULL,
+--    ClanName text NOT NULL
+--);
+
+--ALTER TABLE ClanURLS ADD COLUMN ShowDaily text NOT NULL DEFAULT "No"
