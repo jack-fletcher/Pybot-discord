@@ -145,3 +145,4 @@ lib/bot/configuration.py
 
 *.pyc
 lib/bot/configuration.py
+*.db
