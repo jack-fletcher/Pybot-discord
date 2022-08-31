@@ -1,4 +1,5 @@
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+import discord
 from discord.ext.commands import Bot as BotBase, CommandNotFound
 from ..db import db
 from glob import glob
@@ -73,6 +74,7 @@ class Bot(BotBase):
     async def on_ready(self):
         if not self.ready:
             print("bot ready")
+            await bot.change_presence(activity=discord.Game(name="Use $help for commands!"))
             self.ready = True
             self.scheduler.start()
 

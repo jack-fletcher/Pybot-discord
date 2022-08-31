@@ -4,13 +4,14 @@ import os
 from datetime import date
 
 import requests
+import json
 from apscheduler.triggers.cron import CronTrigger
 from bs4 import BeautifulSoup
 from dateutil.parser import parse
 from discord import Embed
 from discord.ext.commands import Cog, command
 from ..db import db
-
+from ..bot import configuration
 
 class Runescape(Cog):
 
@@ -445,6 +446,52 @@ class Runescape(Cog):
             await ctx.send(new_response)
         else:
             await ctx.send("You are not currently being tracked by Pybot. Please add your username using $setrsn.")
+
+    @command(name='nemi', help="Shows the current nemi forest if one is available.")
+    async def nemi_forest(self, ctx):
+            # note that CLIENT_ID refers to 'personal use script' and SECRET_TOKEN to 'token'
+            auth = requests.auth.HTTPBasicAuth(configuration.clientId, configuration.secretToken)
+
+            # here we pass our login method (password), username, and password
+            data = {'grant_type': 'password',
+                    'username': configuration.redditUsername,
+                    'password': configuration.redditPassword}
+
+            # setup our header info, which gives reddit a brief description of our app
+            headers = {'User-Agent': 'Pybot/0.0.1'}
+
+            # send our request for an OAuth token
+            res = requests.post('https://www.reddit.com/api/v1/access_token',
+                                auth=auth, data=data, headers=headers)
+
+            # convert response to JSON and pull access_token value
+            TOKEN = res.json()['access_token']
+
+            # add authorization to our headers dictionary
+            headers = {**headers, **{'Authorization': f"bearer {TOKEN}"}}
+
+            # while the token is valid (~2 hours) we just add headers=headers to our requests
+            requests.get('https://oauth.reddit.com/api/v1/me', headers=headers)
+
+            URL = "https://oauth.reddit.com/r/NemiForest/new"
+            response = requests.get(URL, headers=headers)
+            if response.status_code == 200:
+
+                #gets the last post on the reddit page, i.e. the most up to date one
+                lastPost = (response.json()['data']['children'][0])
+                #checks if the nemi forest is depleted
+                if lastPost['data']['link_flair_text'] == 'Depleted':
+                    await ctx.send("No current nemi forest is available. Check back later.")
+                else:
+                    embed = Embed()
+                    embed.title = "FC: FC Nemi"
+                    embed.description = lastPost['data']['title']
+                    embed.url = "https://www.reddit.com/r/NemiForest/"
+                    embed.set_image(url=lastPost['data']['url_overridden_by_dest'])
+                    await ctx.send(embed=embed)
+            else:
+                await ctx.send(
+                    "Something went wrong. Please try again in a few minutes, Reddit might be rate limiting us.")
 
     @command(name="invite", help="Shows the bot's invite link.")
     async def invite_bot(self, ctx):
